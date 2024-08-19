@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Container, Typography, Paper, Grid, Box, Button } from '@mui/material';
-
+import { Link } from 'react-router-dom';
 import productContext from '../context/products/productContext';
-
+import DialogueBox from '../Components/DialogueBox';
 const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
@@ -69,9 +69,9 @@ const Orders = () => {
                 <Typography>No orders found</Typography>
             ) : (
                 orders.map((order) => (
-                    <Paper key={order._id} sx={{ marginBottom: 2, padding: 2,backgroundColor:'#E8E8E8', boxShadow: '0px 5px 35px rgba(202, 198, 198, 0.35)', borderRadius:'16px'  }}>
+                    <Paper key={order._id} sx={{ marginBottom: 2, padding: 2, backgroundColor: '#E8E8E8', boxShadow: '0px 5px 35px rgba(202, 198, 198, 0.35)', borderRadius: '16px' }}>
                         <Typography variant="h6">Order ID: <ins>{order._id}</ins></Typography>
-                        <Typography>Order Status: <strong>{order.status || <span style={{ color: 'black', backgroundColor: '#FFFF00', padding: '4px',borderRadius:'10px' }}>Pending</span>}</strong></Typography>
+                        <Typography>Order Status: <strong style={{ color: 'black', backgroundColor: '#FFFF00', padding: '4px', borderRadius: '10px' }}>{order.status || <span style={{ color: 'black', backgroundColor: '#FFFF00', padding: '4px', borderRadius: '10px' }}>Pending</span>}</strong></Typography>
                         <Typography>Full Name: {order.fullName}</Typography>
                         <Typography>Address: {order.address}, {order.line2}, {order.city}, {order.state}, {order.zip}, {order.country}</Typography>
                         <Typography>Phone: {order.phone}</Typography>
@@ -87,14 +87,16 @@ const Orders = () => {
                                     const product = findProductById(item.product);
                                     return (
                                         <Grid item xs={12} sm={6} md={4} key={item._id} >
-                                            <Paper sx={{ padding: 2 }} style={{borderRadius:'14px',backgroundColor:'#E8E8E8'}}>
+                                            <Paper sx={{ padding: 2 }} style={{ borderRadius: '14px', backgroundColor: '#E8E8E8' }}>
                                                 {product && (
-                                                    <>
-                                                        <img src={product.featuredImage} alt={product.name} style={{marginBottom:'2%',width: '300px', height: '200px', objectFit: 'cover',borderRadius:'6px' }} />
+
+                                                    <Link to={`/productdetails/${product._id}`} style={{ textDecoration: 'none', color: 'black' }} title="view product in detail">
+                                                        <img src={product.featuredImage} alt={product.name} style={{ marginBottom: '2%', width: '300px', height: '200px', objectFit: 'cover', borderRadius: '6px' }} />
                                                         <Typography><strong>{product.productName}</strong></Typography>
                                                         <Typography>Price: ₹{product.price}</Typography>
                                                         <Typography>Quantity: {item.quantity}</Typography>
-                                                    </>
+                                                    </Link>
+
                                                 )}
                                             </Paper>
                                         </Grid>
@@ -102,12 +104,27 @@ const Orders = () => {
                                 })}
                             </Grid>
                         </Box>
-                        <hr />
-                        <div className='my-4 bg-secondary p-4' style={{borderRadius:'16px'}}>
-                            <p style={{color:'white'}}><strong>Only if status is <span style={{ color: 'black', backgroundColor: '#FFFF00', padding: '4px',borderRadius:'10px' }}>Pending</span> you can cancel the order</strong></p>
-                            <Button style={{borderRadius:'10px'}} variant="contained" color="error"> Cancel Order  </Button>
-                        </div>
-                        <hr />
+                        {
+                            (order.status === "pending" || order.status === "Pending") && (
+                                <div className='my-4 p-4' style={{ borderRadius: '16px', backgroundColor: '#669bec' }}>
+                                    
+                                    <p style={{ color: 'white' }}>
+                                        <strong>
+                                            Only if status is  <span className='mx-1' style={{color: 'black', backgroundColor: '#FFFF00', padding: '4px', borderRadius: '10px' }}>  Pending  </span> you can cancel the order
+                                        </strong>
+                                    </p>
+                                    <DialogueBox
+                                        text="Cancel Order"
+                                        alert="Are you sure?"
+                                        message="Are you sure you want to cancel this order?"
+                                    // onClickAgree={handleLogout} 
+                                    />
+                            <hr />
+                                </div>
+                            )
+                        }
+
+
                     </Paper>
                 ))
             )}

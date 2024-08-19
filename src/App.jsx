@@ -18,6 +18,7 @@ import ProductDetails from "./Pages/ProductDetails";
 import Footer from "./Components/Footer";
 import Order from "./Pages/Order";
 import MyOrders from "./Pages/MyOrders";
+import BottomButton from "./Components/BottomButton";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
               <Route exact path="/admin/gallery" element={<Gallery/>} />
             </Routes>
           </div>
+          <BottomButton/>
           <Footer/>
         </Router>
       </ProductsState>

@@ -24,7 +24,7 @@ function DialogueBox(props) {
 
   return (
     <>
-      <Button variant="contained" onClick={handleClickOpen} >
+      <Button variant={props.varient || 'contained'} onClick={handleClickOpen} >
         {props.text}
       </Button>
       

@@ -1,0 +1,17 @@
+
+ @media (width <= 910px) {
+    .mobile-cart{
+        display: flex;
+        flex-direction: column;
+    }
+    .mobile-cart-sec-1{
+        width: calc(100vw - 18%) !important;
+    }
+    .cart-mobile-sec-2{
+        width: 25rem;
+    }
+  }
+
+  .mobile-cart-sec-1{
+    width: '40%'
+  }

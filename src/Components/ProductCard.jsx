@@ -1,12 +1,24 @@
-import { ShoppingBag, ShoppingCart } from "@mui/icons-material";
-import { Button } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import * as React from 'react';
+import { useState, useEffect, useContext } from 'react';
+import Box from '@mui/material/Box';
+import AspectRatio from '@mui/joy/AspectRatio';
+import Button from '@mui/joy/Button';
+import Card from '@mui/joy/Card';
+import CardContent from '@mui/joy/CardContent';
+import CardOverflow from '@mui/joy/CardOverflow';
+import Chip from '@mui/joy/Chip';
+import Typography from '@mui/joy/Typography';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import { Link  } from 'react-router-dom';
+import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import productContext from '../context/products/productContext';
 
 function ProductCard(props) {
     const [cartItems, setCartItems] = useState([]);
-    const [success, setSuccess] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const context = useContext(productContext);
+    const { host } = context;
 
     useEffect(() => {
         props.getAllProduct();
@@ -14,7 +26,7 @@ function ProductCard(props) {
 
     const addToCart = async (productId, quantity) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/product/addtocart`, {
+            const response = await fetch(`${host}/api/v1/product/addtocart`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -24,19 +36,15 @@ function ProductCard(props) {
             });
 
             if (!response.ok) {
-                setSuccess(false);
                 const errorText = await response.text();
                 console.error("Server responded with:", errorText);
                 throw new Error(`Server error: ${response.status} - ${response.statusText}`);
             }
 
-            setSuccess(true);
+            setSnackbarOpen(true);  // Open Snackbar on success
             const data = await response.json();
             console.log("Product added to cart successfully:", data.cartItem);
-
-            // Hide alert after 3 seconds
-            setTimeout(() => setSuccess(false), 3000);
-
+            setTimeout(() => setSnackbarOpen(false), 3000);
         } catch (error) {
             console.error("An error occurred while adding the product to the cart:", error);
         }
@@ -44,7 +52,7 @@ function ProductCard(props) {
 
     const removeFromCart = async (cartItemId) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/product/removefromcart/${cartItemId}`, {
+            const response = await fetch(`${host}/api/v1/product/removefromcart/${cartItemId}`, {
                 method: "DELETE",
                 headers: {
                     "auth-token": localStorage.getItem('token'),
@@ -77,64 +85,98 @@ function ProductCard(props) {
         }
     };
 
+    const calculateDiscount = (price) => {
+        if (price > 5000) return 20;
+        if (price > 2000) return 15;
+        if (price > 1000) return 10;
+        if (price > 500) return 5;
+        return 0;
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbarOpen(false);
+    };
+
     return (
         <>
-            {
-                success && (
-                    <Alert variant="filled" severity="success">
-                        Product added successfully to cart
-                    </Alert>
-                )
-            }
-            <div style={{ marginLeft: '3%' }}>
-                <h1 className="mt-4">Products:</h1>
-                <div className="card-group">
-                    {props.products.map((product) => (
-                        <span key={product._id}>
-                            <div className="card m-2" style={{ width: '20rem' }}>
-                                <Link to={`/productdetails/${product._id}`} style={{ textDecoration: 'none' }} title="view product in detail">
+            <Snackbar 
+                open={snackbarOpen} 
+                autoHideDuration={6000} 
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleCloseSnackbar}
+                    severity="success"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    Product added successfully to cart!
+                </Alert>
+            </Snackbar>
+
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2, margin: 2 }}>
+                {props.products.map((product) => {
+                    const discount = calculateDiscount(product.price);
+                    const originalPrice = product.price * (1 + discount / 100);
+
+                    return (
+                        <Card key={product._id} sx={{ width: 320, maxWidth: '100%', boxShadow: 'lg' }}>
+                            <CardOverflow>
+                                <AspectRatio sx={{ minWidth: 200 }}>
                                     <img
-                                        style={{ objectFit: 'cover', height: '210px', width: '100%' }}
                                         src={product.featuredImage}
-                                        className="card-img-top"
-                                        alt="Product"
+                                        alt={product.productName}
+                                        loading="lazy"
                                     />
+                                </AspectRatio>
+                            </CardOverflow>
+                            <CardContent>
+                                <Typography level="body-xs">{product.category}</Typography>
+                                <Link
+                                    to={`/productdetails/${product._id}`}
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    <Typography
+                                        fontWeight="md"
+                                        color="neutral"
+                                        textColor="text.primary"
+                                        overlay
+                                        endDecorator={<ArrowOutwardIcon />}
+                                    >
+                                        {product.productName}
+                                    </Typography>
                                 </Link>
-                                <div className="card-body">
-                                    <h5 className="card-title">
-                                        {product.productName} - ₹{product.price}/-
-                                    </h5>
-                                    <p className="card-text">
-                                        {product.description.length > 50
-                                            ? `${product.description.slice(0, 35)}...`
-                                            : product.description}
-                                    </p>
-                                </div>
-                                <ul className="list-group list-group-flush">
-                                    <li className="list-group-item">{product.brand}</li>
-                                    <li className="list-group-item">
-                                        Hurry up only - {product.countOfStock} left
-                                    </li>
-                                    <li className="list-group-item">⭐⭐⭐⭐⭐ {product.rating}</li>
-                                </ul>
-                                <div className="card-body">
-                                    <Link to="/makeorder">
-                                        <Button variant="contained" className="mx-2">
-                                            Buy Now
-                                        </Button>
-                                    </Link>
-                                    {
-                                        !localStorage.getItem('token') && <Link to='/login' style={{ textDecoration: 'none' }} title="Please Login in to access Cart"> <Button variant="outlined" ><ShoppingBag /></Button></Link>
+                                <Typography
+                                    color='success'
+                                    level="title-lg"
+                                    sx={{ mt: 1, fontWeight: 'xl' }}
+                                    endDecorator={
+                                        <Chip component="span" size="sm" variant="soft" color="success">
+                                            {discount}% off
+                                        </Chip>
                                     }
-                                    {
-                                        localStorage.getItem('token') && <Button variant="outlined" onClick={() => handleCartClick(product._id)} title="Add to Cart"><ShoppingBag /></Button>
-                                    }
-                                </div>
-                            </div>
-                        </span>
-                    ))}
-                </div>
-            </div>
+                                >
+                                    <del>₹{originalPrice.toFixed(2)}/-</del>  -  ₹{product.price}/-
+                                </Typography>
+                                <Typography level="body-sm">
+                                    Hurry up, only <b>{product.countOfStock}</b> left in stock!
+                                </Typography>
+                            </CardContent>
+                            <CardOverflow>
+                                <Button
+                                    variant="solid"
+                                    // color="danger"
+                                    size="lg"
+                                    onClick={() => handleCartClick(product._id)}
+                                >
+                                    {cartItems.find(item => item.product === product._id) ? "Remove from Cart" : "Add to Cart"}
+                                </Button>
+                            </CardOverflow>
+                        </Card>
+                    );
+                })}
+            </Box>
         </>
     );
 }

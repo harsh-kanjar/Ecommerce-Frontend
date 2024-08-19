@@ -1,0 +1,37 @@
+.header .top-strip{
+    margin: 0px;
+    padding: 0px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 400;
+}
+.head{
+    width: 100%;
+    height: auto;
+    padding: 10px 0px;
+}
+.head .logo-container img{
+    width: 100%;
+}
+
+.head .row .part2 .ic {
+   padding: 0px 14px;
+   font-size: 20px;
+   cursor: pointer;
+}
+.head .row .part2 .shopping-cart{
+    color: rgb(195, 15, 45);
+    background-color: pink;
+    border-radius: 100%;
+    padding: 6px 12px;
+}
+.head .row .part2 input{
+    width: 66em;
+    height: 2em;
+    background-color: #c6c6c6;
+    font-size: 25px;
+    color: rgb(114, 104, 104)c6;
+    padding: 0px 14px;
+    border: 1px solid transparent;
+    border-radius: 15px;
+}

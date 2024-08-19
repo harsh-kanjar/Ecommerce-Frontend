@@ -5,14 +5,9 @@ import productContext from '../context/products/productContext';
 
 
 function AddProduct() {
-    const productsInitial = [];
-
     const context = useContext(productContext); // Fetching products
     const { addProduct } = context; //destructuring
 
-    
-    const [products, setProducts] = useState(productsInitial);
-    // State to hold product data
     const [productData, setProductData] = useState({
         productName: "", description: "", richDescription: "", featuredImage: "", subImage1: "", subImage2: "", subImage3: "", brand: "", price: "", category: "", countOfStock: "10", rating: "", isFeatured: "", keywords: []
     });

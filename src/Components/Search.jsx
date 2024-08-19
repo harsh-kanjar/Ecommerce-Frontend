@@ -1,42 +1,57 @@
+import React, { useState } from 'react';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import { BiUser } from 'react-icons/bi';
 import { Link } from 'react-router-dom';
 
-function Search({ isMobile }) {
+function Search({ isMobile, onSearch }) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchClick = () => {
+    if (onSearch && searchQuery.trim() !== '') {
+      onSearch(searchQuery.trim());
+    }
+  };
+
   return (
     <Paper
       component="form"
       sx={{
-        marginRight:isMobile ? '0px':'195px',
-        p: '2px 4px',
+        p: '4px 8px',
         display: 'flex',
         alignItems: 'center',
         width: isMobile ? '100%' : 500,
-        height: '50px',
+        height: '45px',
+        borderRadius: 2,
+        boxShadow: 1,
         marginBottom: isMobile ? '10px' : 0,
       }}
     >
-      <IconButton sx={{ p: '10px' }} aria-label="menu">
-        <MenuIcon />
-      </IconButton>
       <InputBase
-        sx={{ ml: 1, flex: 1 }}
+        sx={{ flex: 1, ml: 1 }}
         placeholder="Search Products..."
         inputProps={{ 'aria-label': 'Search Products...' }}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSearchClick()}
       />
-      <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+      <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={handleSearchClick}>
         <SearchIcon />
       </IconButton>
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-      <IconButton color="primary" sx={{ p: '10px' }} aria-label="user">
-        <Link to='/user'>
-          <BiUser style={{border:'1px solid blue',borderRadius:'25px',padding:'4px',fontSize:'33px'}}/>
-        </Link>
+      <IconButton sx={{ p: '10px' }} aria-label="user">
+        {
+          localStorage.getItem('token') ?
+            <Link to='/user' title='My profile'>
+              <BiUser style={{ border: '1px solid blue', borderRadius: '25px', padding: '4px', fontSize: '25px' }} />
+            </Link> :
+            <Link to='/login' title='Login required'>
+              <BiUser style={{ border: '1px solid blue', borderRadius: '25px', padding: '4px', fontSize: '25px' }}/>
+            </Link>
+        }
       </IconButton>
     </Paper>
   );

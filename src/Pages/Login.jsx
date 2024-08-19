@@ -28,9 +28,9 @@ function Login(props) {
     if (json.success) {
       localStorage.setItem("token", json.authToken);
       navigate("/");
-      alert("Logged in successfully");
+      // alert("Logged in successfully");
     } else {
-      alert("Invalid credentials");
+      // alert("Invalid credentials");
     }
   };
 
