@@ -1,10 +1,15 @@
 import { Button } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import DialogueBox from "../Components/DialogueBox";
 import Alert from '@mui/material/Alert';
 import { Link, useNavigate } from "react-router-dom";
-import { useContext } from "react";
 import productContext from '../context/products/productContext';
+import Typography from '@mui/joy/Typography';
+import AspectRatio from '@mui/joy/AspectRatio';
+import Card from '@mui/joy/Card';
+import CardContent from '@mui/joy/CardContent';
+import IconButton from '@mui/joy/IconButton';
+import BookmarkAdd from '@mui/icons-material/BookmarkAddOutlined';
 
 function Cart() {
     const [cartProducts, setCartProducts] = useState([]);
@@ -14,7 +19,7 @@ function Cart() {
     const [totalDiscount, setTotalDiscount] = useState(0);
     const navigate = useNavigate();
 
-    const context = useContext(productContext);  
+    const context = useContext(productContext);
     const { host, setPrice } = context;
 
     const deliveryCharges = 100;
@@ -138,55 +143,89 @@ function Cart() {
             }
             <h1 style={{ marginLeft: "5%", marginTop: '2%', marginBottom: '2%' }}>Cart</h1>
 
-            <div className="mobile-cart d-flex mb-4">
-                <div className="mobile-cart-sec-1" style={{ marginLeft: "5%", width: '50%', marginRight: '10%', height: '500px', overflowY: 'auto' }}>
-                    <div className="card-group">
-                        {cartProducts.map((item) => {
-                            const itemTotalPrice = item.product.price * item.quantity;
-                            const discountPercent = calculateDiscount(item.product.price);
-                            const discountAmount = (itemTotalPrice * discountPercent) / 100;
-                            const discountedPrice = itemTotalPrice - discountAmount;
+            {cartProducts.length === 0 ? (
+                <div style={{ textAlign: 'center', marginTop: '5%', marginBottom: '3.4%' }}>
+                    <Typography level="h5">OOPS..! Your cart is empty</Typography> <br />
+                    <Link to="/" style={{ textDecoration: 'none', marginTop: '2rem' }}>
+                        <Button variant="contained" color="primary">
+                            Continue Shopping
+                        </Button>
+                    </Link>
+                </div>
+            ) : (
+                <div className="mobile-cart d-flex mb-4">
+                    <div className="mobile-cart-sec-1" style={{ marginLeft: "5%", width: '50%', marginRight: '10%', height: '500px', overflowY: 'auto' }}>
+                        <div className="card-group">
+                            {cartProducts.map((item) => {
+                                const itemTotalPrice = item.product.price * item.quantity;
+                                const discountPercent = calculateDiscount(item.product.price);
+                                const discountAmount = (itemTotalPrice * discountPercent) / 100;
+                                const discountedPrice = itemTotalPrice - discountAmount;
 
-                            return (
-                                <div key={item._id} style={{ height: '400px', width: '317px', borderRadius: '24px' }} className="mr-4">
-                                    <img style={{ height: '210px', width: '100%', objectFit: 'cover', borderRadius: '23px' }} src={item.product.featuredImage} alt={item.product.productName} />
-                                    <div>
-                                        <p className="mt-2 ml-2">{item.product.productName}</p>
-                                        <div className="mt-2 ml-2">
-                                            <Button onClick={() => updateQuantity(item._id, item.quantity - 1)} disabled={item.quantity <= 1}>-</Button>
-                                            Quantity - {item.quantity}
-                                            <Button onClick={() => updateQuantity(item._id, item.quantity + 1)} disabled={item.quantity >= item.product.countOfStock}>+</Button>
+                                return (
+                                    <Card key={item._id} sx={{ width: 320, marginBottom: '1rem' }}>
+                                        <div>
+                                            <Typography level="h6">{item.product.productName}</Typography>
+                                            <IconButton
+                                                aria-label="bookmark"
+                                                variant="plain"
+                                                color="neutral"
+                                                size="sm"
+                                                sx={{ position: 'absolute', top: '0.875rem', right: '0.5rem' }}
+                                            >
+                                                <BookmarkAdd />
+                                            </IconButton>
                                         </div>
-                                        <p className="mt-2 ml-2"><strong>Price -</strong> <del>₹{itemTotalPrice}</del> - <span className="text-success">₹{discountedPrice}</span> <span className="bg-success text-light px-2 ml-2" style={{borderRadius:'12px'}}>{discountPercent}% off</span></p>
-                                        <DialogueBox
-                                            varient="outlined"
-                                            text="Remove"
-                                            alert="Are you sure?"
-                                            message="Once you click on agree it will remove forever!"
-                                            onClickAgree={() => removeItemFromCart(item._id)}
-                                        />
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div style={{ width: '25rem', height: '350px', border: '1px solid transparent', borderRadius: '12px', padding: '12px', boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.35)' }}>
-                    <div className="d-flex flex-column">
-                        <div>
-                            <p>Product Details</p>
-                            <hr />
-                            <p className="d-flex justify-content-between"><span>Price ({totalQuantity} items)</span><span>₹{Math.ceil(totalPrice)}</span></p>
-                            <p className="d-flex justify-content-between"><span>Delivery Charges</span><span>₹{deliveryCharges}</span></p>
-                            <p className="d-flex justify-content-between"><span>Total Discount</span><span className="text-success">-₹{Math.ceil(totalDiscount)}</span></p>
-                            <hr />
-                            <p className="d-flex justify-content-between"><span>Total Price</span><span>₹{Math.ceil(totalPrice + deliveryCharges)}</span></p>
+                                        <AspectRatio minHeight="120px" maxHeight="200px">
+                                            <img
+                                                src={item.product.featuredImage}
+                                                alt={item.product.productName}
+                                                loading="lazy"
+                                            />
+                                        </AspectRatio>
+                                        <CardContent orientation="horizontal">
+                                            <div>
+                                                <Typography level="body-xs">Total price:</Typography>
+                                                <Typography fontSize="lg" fontWeight="lg">
+                                                    <del>₹{itemTotalPrice}</del> ₹{discountedPrice}
+                                                </Typography>
+                                                <Typography level="body-xs" className="text-success">
+                                                    {discountPercent}% off
+                                                </Typography>
+                                            </div>
+                                            <Button
+                                                variant="solid"
+                                                size="md"
+                                                color="primary"
+                                                aria-label="Remove from Cart"
+                                                sx={{ ml: 'auto', alignSelf: 'center', fontWeight: 600 }}
+                                                onClick={() => removeItemFromCart(item._id)}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
                         </div>
-                        <Link style={{ textDecoration: 'none' }} to="/order"><Button style={{ marginTop: '53px', width: '100%' }} variant="contained" title="Checkout">Place Order</Button></Link>
+                    </div>
+
+                    <div style={{ width: '25rem', height: '350px', border: '1px solid transparent', borderRadius: '12px', padding: '12px', boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.35)' }}>
+                        <div className="d-flex flex-column">
+                            <div>
+                                <p>Product Details</p>
+                                <hr />
+                                <p className="d-flex justify-content-between"><span>Price ({totalQuantity} items)</span><span>₹{Math.ceil(totalPrice)}</span></p>
+                                <p className="d-flex justify-content-between"><span>Delivery Charges</span><span>₹{deliveryCharges}</span></p>
+                                <p className="d-flex justify-content-between"><span>Total Discount</span><span className="text-success">-₹{Math.ceil(totalDiscount)}</span></p>
+                                <hr />
+                                <p className="d-flex justify-content-between"><span>Total Price</span><span>₹{Math.ceil(totalPrice + deliveryCharges)}</span></p>
+                            </div>
+                            <Link style={{ textDecoration: 'none' }} to="/order"><Button style={{ marginTop: '53px', width: '100%' }} variant="contained" title="Checkout">Place Order</Button></Link>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
         </>
     );
 }

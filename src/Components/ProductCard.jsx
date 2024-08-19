@@ -9,7 +9,7 @@ import CardOverflow from '@mui/joy/CardOverflow';
 import Chip from '@mui/joy/Chip';
 import Typography from '@mui/joy/Typography';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import { Link  } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import productContext from '../context/products/productContext';
@@ -99,13 +99,13 @@ function ProductCard(props) {
 
     return (
         <>
-            <Snackbar 
-                open={snackbarOpen} 
-                autoHideDuration={6000} 
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert 
+                <Alert
                     onClose={handleCloseSnackbar}
                     severity="success"
                     variant="filled"
@@ -162,16 +162,28 @@ function ProductCard(props) {
                                 <Typography level="body-sm">
                                     Hurry up, only <b>{product.countOfStock}</b> left in stock!
                                 </Typography>
+                                <Typography sx={{ marginTop: 1 }} variant="p" level="body-sm" gutterBottom>Select size in cart: available in all sizes</Typography>
                             </CardContent>
                             <CardOverflow>
-                                <Button
-                                    variant="solid"
-                                    // color="danger"
-                                    size="lg"
-                                    onClick={() => handleCartClick(product._id)}
-                                >
-                                    {cartItems.find(item => item.product === product._id) ? "Remove from Cart" : "Add to Cart"}
-                                </Button>
+                                {
+                                    localStorage.getItem('token') ?
+                                        <Button
+                                            variant="solid"
+                                            // color="danger"
+                                            size="lg"
+                                            onClick={() => handleCartClick(product._id)}
+                                        >
+                                            {cartItems.find(item => item.product === product._id) ? "Remove from Cart" : "Add to Cart"}
+                                        </Button> :
+                                        <Button
+                                            variant="solid"
+                                            // color="danger"
+                                            size="lg"
+                                            title='Login required'
+                                        >
+                                            {cartItems.find(item => item.product === product._id) ? "Remove from Cart" : "Add to Cart"}
+                                        </Button>
+                                }
                             </CardOverflow>
                         </Card>
                     );
