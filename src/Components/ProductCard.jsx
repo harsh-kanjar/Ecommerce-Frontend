@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import productContext from '../context/products/productContext';
+import { ShoppingCartRounded } from '@mui/icons-material';
 
 function ProductCard(props) {
     const [cartItems, setCartItems] = useState([]);
@@ -123,13 +124,14 @@ function ProductCard(props) {
                     return (
                         <Card key={product._id} sx={{ width: 320, maxWidth: '100%', boxShadow: 'lg' }}>
                             <CardOverflow>
-                                <AspectRatio sx={{ minWidth: 200 }}>
+                                <div style={{maxWidth:'200px', maxHeight:'400px',padding:'0 auto'}}>
                                     <img
+                                        style={{maxWidth:'300px', maxHeight:'100%'}}
                                         src={product.featuredImage}
                                         alt={product.productName}
                                         loading="lazy"
                                     />
-                                </AspectRatio>
+                                </div>
                             </CardOverflow>
                             <CardContent>
                                 <Typography level="body-xs">{product.category}</Typography>
@@ -167,21 +169,14 @@ function ProductCard(props) {
                             <CardOverflow>
                                 {
                                     localStorage.getItem('token') ?
-                                        <Button
-                                            variant="solid"
-                                            // color="danger"
-                                            size="lg"
-                                            onClick={() => handleCartClick(product._id)}
-                                        >
-                                            {cartItems.find(item => item.product === product._id) ? "Remove from Cart" : "Add to Cart"}
-                                        </Button> :
-                                        <Button
-                                            variant="solid"
-                                            // color="danger"
-                                            size="lg"
-                                            title='Login required'
-                                        >
-                                            {cartItems.find(item => item.product === product._id) ? "Remove from Cart" : "Add to Cart"}
+
+                                        <Button onClick={() => handleCartClick(product._id)} variant="contained" startIcon={<ShoppingCartRounded />}>
+                                            Add item
+                                        </Button>
+
+                                        :
+                                        <Button title='Login Required' variant="contained" >
+                                           <ShoppingCartRounded /> Add item
                                         </Button>
                                 }
                             </CardOverflow>

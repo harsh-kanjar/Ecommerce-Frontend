@@ -156,6 +156,7 @@ const MyOrders = () => {
                                                                    Price: ₹{product.price}
                                                                 </TypographyJoy>
                                                                 <TypographyJoy textColor="#fff">Quantity: {item.quantity}</TypographyJoy>
+                                                                <TypographyJoy textColor="#fff">Size: {item.size}</TypographyJoy>
                                                             </CardContent>
                                                         </Link>
                                                     </Card>

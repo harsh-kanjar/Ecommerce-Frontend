@@ -1,14 +1,27 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Container, Grid, TextField, Button, Typography, MenuItem, FormControl, InputLabel, Select } from "@mui/material";
 import productContext from '../context/products/productContext';
+import { useNavigate } from "react-router-dom";
 
 function Order() {
     const context = useContext(productContext);
-    const { host, price } = context;
+    const { host } = context;
+    const navigate = useNavigate();
 
     const [orderDetails, setOrderDetails] = useState({
         fullName: '', phone: '', address: '', line2: '', city: '', state: '', zip: '', country: '', paymentMode: '', couponCode: '',
     });
+
+    const [cartData, setCartData] = useState(null);
+
+    useEffect(() => {
+        const storedOrderDetails = localStorage.getItem('orderDetails');
+        if (storedOrderDetails) {
+            setCartData(JSON.parse(storedOrderDetails));
+        } else {
+            navigate('/cart');
+        }
+    }, [navigate]);
 
     const handleChange = (e) => {
         setOrderDetails({
@@ -17,82 +30,78 @@ function Order() {
         });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmitOrder = async () => {
+        const data = {
+            ...orderDetails,
+            cartItems: cartData.cartProducts,
+            totalPrice: cartData.totalPrice,
+            totalQuantity: cartData.totalQuantity,
+            totalDiscount: cartData.totalDiscount,
+        };
 
-        try {
-            const response = await fetch(`${host}/api/v1/product/makeorder`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'auth-token': localStorage.getItem('token')
-                },
-                body: JSON.stringify(orderDetails)
-            });
+        const response = await fetch(`${host}/api/v1/product/makeorder`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "auth-token": localStorage.getItem('token'),
+            },
+            body: JSON.stringify(data),
+        });
 
-            const result = await response.json();
-            if (response.status === 200) {
-                console.log('Order placed successfully:', result);
-                alert("Order placed successfully!");
-            } else {
-                console.error('Failed to place order:', result.message);
-            }
-        } catch (error) {
-            console.error('Error placing order:', error);
+        const result = await response.json();
+        if (result.success) {
+            navigate('/success');
+        } else {
+            console.error(result.error);
+            navigate('/success');
         }
     };
 
     return (
-        <Container maxWidth="sm" style={{ marginBottom: '4%', marginTop: '4%', padding: '12px', border: '1px solid transparent', borderRadius: '12px', boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.35)' }}>
-            <Typography variant="h4" gutterBottom>Fill Required Information</Typography>
-            <form onSubmit={handleSubmit}>
+        <Container component="main" maxWidth="sm">
+            <Typography variant="h4" gutterBottom>Order Details</Typography>
+            <form>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <TextField fullWidth label="Full Name" name="fullName" variant="outlined" value={orderDetails.fullName} onChange={handleChange} required />
+                        <TextField name="fullName" label="Full Name" fullWidth required onChange={handleChange} value={orderDetails.fullName} />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField fullWidth label="Phone" name="phone" variant="outlined" value={orderDetails.phone} onChange={handleChange} required />
+                        <TextField name="phone" label="Phone" fullWidth required onChange={handleChange} value={orderDetails.phone} />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField fullWidth label="Line 1" name="address" variant="outlined" value={orderDetails.address} onChange={handleChange} required />
+                        <TextField name="address" label="Address Line 1" fullWidth required onChange={handleChange} value={orderDetails.address} />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField fullWidth label="Line 2" name="line2" variant="outlined" value={orderDetails.line2} onChange={handleChange} />
+                        <TextField name="line2" label="Address Line 2" fullWidth onChange={handleChange} value={orderDetails.line2} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField fullWidth label="City" name="city" variant="outlined" value={orderDetails.city} onChange={handleChange} required />
+                        <TextField name="city" label="City" fullWidth required onChange={handleChange} value={orderDetails.city} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField fullWidth label="State" name="state" variant="outlined" value={orderDetails.state} onChange={handleChange} required />
+                        <TextField name="state" label="State" fullWidth required onChange={handleChange} value={orderDetails.state} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField fullWidth label="Zip Code" name="zip" variant="outlined" value={orderDetails.zip} onChange={handleChange} required />
+                        <TextField name="zip" label="ZIP Code" fullWidth required onChange={handleChange} value={orderDetails.zip} />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField fullWidth label="Country" name="country" variant="outlined" value={orderDetails.country} onChange={handleChange} required />
+                        <TextField name="country" label="Country" fullWidth required onChange={handleChange} value={orderDetails.country} />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField fullWidth label="Apply Coupon Code" name="couponCode" variant="outlined" value={orderDetails.couponCode} onChange={handleChange} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField fullWidth name="price" variant="outlined" value={`₹ ${price}/-`} InputProps={{ readOnly: true }} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormControl fullWidth variant="outlined">
+                        <FormControl fullWidth>
                             <InputLabel>Payment Mode</InputLabel>
-                            <Select name="paymentMode" value={orderDetails.paymentMode} onChange={handleChange} label="Payment Mode" required>
-                                <MenuItem value=""> <em>None</em> </MenuItem>
+                            <Select name="paymentMode" value={orderDetails.paymentMode} onChange={handleChange}>
+                                <MenuItem value="COD">Cash on Delivery</MenuItem>
                                 <MenuItem value="Credit Card">Credit Card</MenuItem>
                                 <MenuItem value="Debit Card">Debit Card</MenuItem>
-                                <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
-                                <MenuItem value="Cash on Delivery">Cash on Delivery</MenuItem>
+                                <MenuItem value="UPI">UPI</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
                     <Grid item xs={12}>
-                        <Button type="submit" variant="contained" color="primary" fullWidth style={{ marginTop: '10px', borderRadius: '6px', boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.35)' }}>Proceed</Button>
+                        <TextField name="couponCode" label="Coupon Code" fullWidth onChange={handleChange} value={orderDetails.couponCode} />
                     </Grid>
                 </Grid>
+                <Button variant="contained" color="primary" onClick={handleSubmitOrder} style={{ marginTop: '20px' }}>Submit Order</Button>
             </form>
         </Container>
     );

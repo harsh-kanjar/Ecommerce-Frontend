@@ -19,6 +19,7 @@ import Footer from "./Components/Footer";
 import Order from "./Pages/Order";
 import MyOrders from "./Pages/MyOrders";
 import BottomButton from "./Components/BottomButton";
+import OrderSuccess from "./Pages/OrderSuccess";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
               <Route exact path="/cart" element={<Cart/>} />
               <Route exact path="/order" element={<Order/>} />
               <Route exact path="/myorders" element={<MyOrders/>} />
+              <Route exact path="/success" element={<OrderSuccess/>} />
               <Route exact path="/productdetails/:id" element={<ProductDetails/>} />
               <Route exact path="/admin/addproduct" element={<AddProduct/>} />
               <Route exact path="/admin/imagegallery" element={<UploadImages/>} />
