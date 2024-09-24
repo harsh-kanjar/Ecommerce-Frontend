@@ -1,4 +1,4 @@
-import noteContext from "./productContext";
+import productContext from "./productContext";
 import { useState } from "react";
 
 function ProductsState(props) {
