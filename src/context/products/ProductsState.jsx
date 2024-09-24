@@ -68,11 +68,11 @@ function ProductsState(props) {
     const [cartProducts, setCartProducts] = useState(productsInitial);
 
     return (
-        <noteContext.Provider
+        <productContext.Provider
             value={{ host,products, getAllProduct, addProduct, setPrice, price }}
         >
             {props.children}
-        </noteContext.Provider>
+        </productContext.Provider>
     );
 }
 export default ProductsState
