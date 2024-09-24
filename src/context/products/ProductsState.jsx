@@ -13,7 +13,6 @@ function ProductsState(props) {
             method: "GET",
             headers: {
                 "content-type": "application/json",
-                "auth-token": localStorage.getItem('token'),
             },
         });
         const json = await response.json();
@@ -29,6 +28,7 @@ function ProductsState(props) {
             method: "GET",
             headers: {
                 "content-type": "application/json",
+                "auth-token": localStorage.getItem('token'),
             },
         });
         const json = await response.json();
